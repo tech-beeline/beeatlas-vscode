@@ -80,7 +80,8 @@ BACKUP_SUM="$(cd "$ROOT" && find vscode-extensions -type f -exec md5sum {} + | s
 docker exec "$CONTAINER" sh -c "echo probe > '${EXT_DIR}/.mount-probe'" \
     || fail "не удалось записать в ${EXT_DIR}"
 [ -f "${HOST_EXT_DIR}/.mount-probe" ] || fail "файл из контейнера не появился на хосте — каталог расширений не смонтирован"
-rm -f "${HOST_EXT_DIR}/.mount-probe"
+# Файл принадлежит uid контейнера, поэтому убираем его тоже изнутри.
+docker exec "$CONTAINER" rm -f "${EXT_DIR}/.mount-probe"
 pass "каталог расширений смонтирован read-write с хоста"
 
 # 2. Эмулируем обновление расширения внутри контейнера: новая версия в смонтированном каталоге.

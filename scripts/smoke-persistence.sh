@@ -41,11 +41,20 @@ cleanup() {
     exit "$status"
 }
 
+remove_host_ext_dir() {
+    rm -rf "$HOST_EXT_DIR" 2>/dev/null || sudo rm -rf "$HOST_EXT_DIR"
+}
+
 restore_folder() {
     [ -n "${RESTORED:-}" ] && return 0
     if [ -f "${BACKUP_DIR}/backup.tar" ]; then
-        rm -rf "$HOST_EXT_DIR"
+        remove_host_ext_dir
         tar -C "$ROOT" -xf "${BACKUP_DIR}/backup.tar"
+        # entrypoint контейнера делает chown ~/.local на uid 1000, поэтому на хостах,
+        # где тесты запускаются под другим uid (например, runner в CI), возвращаем владельца.
+        if [ "$(id -u)" != "0" ]; then
+            sudo -n chown -R "$(id -u):$(id -g)" "$HOST_EXT_DIR" 2>/dev/null || true
+        fi
     fi
     RESTORED=1
 }

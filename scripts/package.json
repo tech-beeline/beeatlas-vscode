@@ -1,0 +1,9 @@
+{
+  "name": "beeatlas-vscode-smoke",
+  "private": true,
+  "type": "module",
+  "description": "Смоук-тесты web IDE (UI-часть на puppeteer-core)",
+  "dependencies": {
+    "puppeteer-core": "^23.11.1"
+  }
+}

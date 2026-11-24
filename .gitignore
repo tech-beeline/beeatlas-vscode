@@ -1,0 +1,7 @@
+workspace/
+certs/
+.env
+logs/
+*.log
+node_modules/
+scripts/node_modules/

@@ -1,0 +1,39 @@
+name: Smoke test
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Смоук: сборка образа, логин в code-server, расширение C4 в UI и на .dsl файле.
+      - name: Smoke test... Build, run and check web IDE
+        env:
+          PASSWORD: smoke-test-password
+          SCREENSHOT_DIR: ${{ github.workspace }}/logs
+        run: |
+          docker compose version || (echo "Docker Compose not found" && sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose)
+          ./scripts/smoke.sh
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-logs
+          path: logs/
+          if-no-files-found: warn

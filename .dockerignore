@@ -1,0 +1,9 @@
+.git
+.github
+scripts
+workspace
+certs
+.env
+*.log
+logs
+README.md
